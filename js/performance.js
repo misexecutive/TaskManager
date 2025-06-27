@@ -35,7 +35,7 @@ async function initializePerformancePage() {
  */
 async function loadTasks(email) {
   try {
-    const res = await fetch(`${API_BASE}?action=getMyTasks&email=${email}`);
+    const res = await fetch(`${API_BASE}?action=getUserTasks&email=${email}`);
     const result = await res.json();
 
     if (result.status !== 'success') {

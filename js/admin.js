@@ -18,8 +18,9 @@ async function initializeAdminPage() {
     return;
   }
 
-  // Verify if the logged-in user is an Admin
+  showLoader(); // Show loader during initialization
   try {
+    // Verify if the logged-in user is an Admin
     const res = await fetch(`${API_BASE}?action=getUserRole&email=${adminUserEmail}`);
     const result = await res.json();
 
@@ -27,19 +28,27 @@ async function initializeAdminPage() {
       // Display admin user name
       document.getElementById('userName').textContent = userName || 'Admin';
       // Load all admin-specific data
-      loadEmployees();
-      loadTasks();
-      populateDropdowns();
-      loadGlobalPerformance();
+      await loadEmployees();
+      await loadTasks();
+      await populateDropdowns();
+      await loadGlobalPerformance();
+      await populateDepartmentFilter(); // New: Populate department filter
+      await loadFilteredStats(); // Load initial filtered stats (all)
     } else {
       // If not an admin, redirect to user portal or login
-      window.location.href = 'performance.html'; // Or 'portal.html' if unauthorized access is not allowed at all
-      alert('Access Denied: You are not authorized to view this page.'); // Use custom modal
+      showToast('Access Denied: You are not authorized to view this page.', 'error');
+      setTimeout(() => {
+        window.location.href = 'performance.html'; // Or 'portal.html' if unauthorized access is not allowed at all
+      }, 1500); // Give time for toast to show
     }
   } catch (error) {
     console.error('Error verifying admin role:', error);
-    window.location.href = 'portal.html'; // Redirect to login on error
-    alert('An error occurred during authorization. Please try again.'); // Use custom modal
+    showToast('An error occurred during authorization. Please try again.', 'error');
+    setTimeout(() => {
+      window.location.href = 'portal.html'; // Redirect to login on error
+    }, 1500); // Give time for toast to show
+  } finally {
+    hideLoader(); // Hide loader after initialization
   }
 }
 
@@ -55,6 +64,7 @@ document.getElementById('employeeForm').addEventListener('submit', async (e) => 
     department: formData.get('department')
   });
 
+  showLoader();
   try {
     const res = await fetch(API_BASE, {
       method: 'POST',
@@ -62,14 +72,20 @@ document.getElementById('employeeForm').addEventListener('submit', async (e) => 
     });
 
     const result = await res.json();
-    // Replace alert with a custom message box
-    alert(result.message); // Use custom modal
-    e.target.reset();
-    loadEmployees(); // Reload employee list
-    populateDropdowns(); // Update employee dropdown
+    if (result.status === 'success') {
+      showToast(result.message, 'success');
+      e.target.reset();
+      await loadEmployees(); // Reload employee list
+      await populateDropdowns(); // Update employee dropdown
+      await populateDepartmentFilter(); // Update department filter
+    } else {
+      showToast(result.message, 'error');
+    }
   } catch (error) {
     console.error('Error adding employee:', error);
-    alert('An error occurred while adding the employee.'); // Use custom modal
+    showToast('An error occurred while adding the employee.', 'error');
+  } finally {
+    hideLoader();
   }
 });
 
@@ -77,6 +93,7 @@ document.getElementById('employeeForm').addEventListener('submit', async (e) => 
  * Loads all employees and populates the employee table.
  */
 async function loadEmployees() {
+  showLoader();
   try {
     const res = await fetch(`${API_BASE}?action=getAllEmployees`);
     const data = await res.json();
@@ -84,20 +101,24 @@ async function loadEmployees() {
     const tbody = document.getElementById('employeeTableBody');
     tbody.innerHTML = ''; // Clear existing rows
 
-    if (data.status === 'success') {
+    if (data.status === 'success' && data.employees) {
       data.employees.forEach(emp => {
         const row = `<tr>
-          <td class="p-2 border">${emp.Name}</td>
-          <td class="p-2 border">${emp.Email}</td>
-          <td class="p-2 border">${emp.Department}</td>
+          <td>${emp.Name || ''}</td>
+          <td>${emp.Email || ''}</td>
+          <td>${emp.Department || ''}</td>
         </tr>`;
         tbody.insertAdjacentHTML('beforeend', row);
       });
     } else {
       console.error('Failed to load employees:', data.message);
+      showToast(`Failed to load employees: ${data.message}`, 'error');
     }
   } catch (error) {
     console.error('Error loading employees:', error);
+    showToast('An error occurred while loading employees.', 'error');
+  } finally {
+    hideLoader();
   }
 }
 
@@ -112,6 +133,7 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     description: formData.get('description')
   });
 
+  showLoader();
   try {
     const res = await fetch(API_BASE, {
       method: 'POST',
@@ -119,13 +141,19 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     });
 
     const result = await res.json();
-    alert(result.message); // Use custom modal
-    e.target.reset();
-    loadTasks(); // Reload task list
-    populateDropdowns(); // Update task dropdown
+    if (result.status === 'success') {
+      showToast(result.message, 'success');
+      e.target.reset();
+      await loadTasks(); // Reload task list
+      await populateDropdowns(); // Update task dropdown
+    } else {
+      showToast(result.message, 'error');
+    }
   } catch (error) {
     console.error('Error adding task:', error);
-    alert('An error occurred while adding the task.'); // Use custom modal
+    showToast('An error occurred while adding the task.', 'error');
+  } finally {
+    hideLoader();
   }
 });
 
@@ -133,6 +161,7 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
  * Loads all tasks and populates the task table.
  */
 async function loadTasks() {
+  showLoader();
   try {
     const res = await fetch(`${API_BASE}?action=getAllTasks`);
     const data = await res.json();
@@ -140,20 +169,24 @@ async function loadTasks() {
     const tbody = document.getElementById('taskTableBody');
     tbody.innerHTML = ''; // Clear existing rows
 
-    if (data.status === 'success') {
+    if (data.status === 'success' && data.tasks) {
       data.tasks.forEach(task => {
         const row = `<tr>
-          <td class="p-2 border">${task["Task ID"]}</td>
-          <td class="p-2 border">${task["Task Name"]}</td>
-          <td class="p-2 border">${task["Description"]}</td>
+          <td>${task["Task ID"] || ''}</td>
+          <td>${task["Task Name"] || ''}</td>
+          <td>${task["Description"] || ''}</td>
         </tr>`;
         tbody.insertAdjacentHTML('beforeend', row);
       });
     } else {
       console.error('Failed to load tasks:', data.message);
+      showToast(`Failed to load tasks: ${data.message}`, 'error');
     }
   } catch (error) {
     console.error('Error loading tasks:', error);
+    showToast('An error occurred while loading tasks.', 'error');
+  } finally {
+    hideLoader();
   }
 }
 
@@ -164,12 +197,13 @@ document.getElementById('assignForm').addEventListener('submit', async (e) => {
   const formData = new FormData(e.target);
   const params = new URLSearchParams({
     action: 'assignTask',
-    task: formData.get('task'), // Fixed: changed from 'taskID' to 'task'
-    assignedTo: formData.get('assignedTo'), // Fixed: changed from 'assignedToEmail' to 'assignedTo'
+    task: formData.get('task'),
+    assignedTo: formData.get('assignedTo'),
     recurrence: formData.get('recurrence'),
     startDate: formData.get('startDate')
   });
 
+  showLoader();
   try {
     const res = await fetch(API_BASE, {
       method: 'POST',
@@ -177,11 +211,17 @@ document.getElementById('assignForm').addEventListener('submit', async (e) => {
     });
 
     const result = await res.json();
-    alert(result.message); // Use custom modal
-    e.target.reset();
+    if (result.status === 'success') {
+      showToast(result.message, 'success');
+      e.target.reset();
+    } else {
+      showToast(result.message, 'error');
+    }
   } catch (error) {
     console.error('Error assigning task:', error);
-    alert('An error occurred while assigning the task.'); // Use custom modal
+    showToast('An error occurred while assigning the task.', 'error');
+  } finally {
+    hideLoader();
   }
 });
 
@@ -189,13 +229,14 @@ document.getElementById('assignForm').addEventListener('submit', async (e) => {
  * Populates the task and employee dropdowns for the assign task form.
  */
 async function populateDropdowns() {
+  showLoader();
   try {
     // Populate task dropdown
     const taskRes = await fetch(`${API_BASE}?action=getAllTasks`);
     const taskData = await taskRes.json();
     const taskDropdown = document.getElementById('taskDropdown');
     taskDropdown.innerHTML = '<option value="">Select Task</option>'; // Add a default option
-    if (taskData.status === 'success') {
+    if (taskData.status === 'success' && taskData.tasks) {
       taskData.tasks.forEach(task => {
         const opt = document.createElement('option');
         opt.value = task["Task ID"];
@@ -204,6 +245,7 @@ async function populateDropdowns() {
       });
     } else {
       console.error('Failed to load tasks for dropdown:', taskData.message);
+      showToast(`Failed to load tasks for dropdown: ${taskData.message}`, 'error');
     }
 
     // Populate employee dropdown
@@ -211,7 +253,7 @@ async function populateDropdowns() {
     const empData = await empRes.json();
     const empDropdown = document.getElementById('employeeDropdown');
     empDropdown.innerHTML = '<option value="">Select Employee</option>'; // Add a default option
-    if (empData.status === 'success') {
+    if (empData.status === 'success' && empData.employees) {
       empData.employees.forEach(emp => {
         const opt = document.createElement('option');
         opt.value = emp.Email;
@@ -220,9 +262,13 @@ async function populateDropdowns() {
       });
     } else {
       console.error('Failed to load employees for dropdown:', empData.message);
+      showToast(`Failed to load employees for dropdown: ${empData.message}`, 'error');
     }
   } catch (error) {
     console.error('Error populating dropdowns:', error);
+    showToast('An error occurred while populating dropdowns.', 'error');
+  } finally {
+    hideLoader();
   }
 }
 
@@ -231,6 +277,7 @@ async function populateDropdowns() {
  * Fixed to handle the summary array structure returned by backend.
  */
 async function loadGlobalPerformance() {
+  showLoader();
   try {
     const res = await fetch(`${API_BASE}?action=getStatsAll`);
     const data = await res.json();
@@ -250,6 +297,7 @@ async function loadGlobalPerformance() {
       document.getElementById('globalPending').textContent = totals.pending;
     } else {
       console.error('Failed to load global performance stats:', data.message);
+      showToast(`Failed to load global performance stats: ${data.message}`, 'error');
       // Show zero values instead of error
       document.getElementById('globalTotal').textContent = '0';
       document.getElementById('globalOnTime').textContent = '0';
@@ -258,11 +306,45 @@ async function loadGlobalPerformance() {
     }
   } catch (error) {
     console.error('Error fetching global performance stats:', error);
+    showToast('An error occurred while fetching global performance stats.', 'error');
     document.getElementById('globalTotal').textContent = 'Error';
     document.getElementById('globalOnTime').textContent = 'Error';
     document.getElementById('globalLate').textContent = 'Error';
     document.getElementById('globalPending').textContent = 'Error';
+  } finally {
+    hideLoader();
   }
+}
+
+/**
+ * Populates the department filter dropdown with unique department names.
+ */
+async function populateDepartmentFilter() {
+    showLoader();
+    try {
+        const res = await fetch(`${API_BASE}?action=getAllEmployees`);
+        const data = await res.json();
+        const departmentDropdown = document.getElementById('filterDepartment');
+        departmentDropdown.innerHTML = '<option value="">All Departments</option>'; // Default option
+
+        if (data.status === 'success' && data.employees) {
+            const departments = [...new Set(data.employees.map(emp => emp.Department).filter(Boolean))];
+            departments.sort().forEach(dept => {
+                const opt = document.createElement('option');
+                opt.value = dept.toLowerCase();
+                opt.textContent = dept;
+                departmentDropdown.appendChild(opt);
+            });
+        } else {
+            console.error('Failed to load departments for filter:', data.message);
+            showToast(`Failed to load departments for filter: ${data.message}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error populating department filter:', error);
+        showToast('An error occurred while populating department filter.', 'error');
+    } finally {
+        hideLoader();
+    }
 }
 
 /**
@@ -270,6 +352,7 @@ async function loadGlobalPerformance() {
  * This function can be called when implementing advanced filtering features.
  */
 async function loadFilteredStats(filters = {}) {
+  showLoader();
   try {
     const params = new URLSearchParams({
       action: 'getFilteredStats',
@@ -279,22 +362,56 @@ async function loadFilteredStats(filters = {}) {
     const res = await fetch(`${API_BASE}?${params}`);
     const data = await res.json();
 
-    if (data.status === 'success') {
-      return data.data; // Return the filtered statistics
+    const tbody = document.getElementById('filteredStatsTableBody');
+    tbody.innerHTML = ''; // Clear existing rows
+
+    if (data.status === 'success' && data.data) {
+        data.data.forEach(stat => {
+            const row = `<tr>
+                <td>${stat.name}</td>
+                <td>${stat.email}</td>
+                <td>${stat.department}</td>
+                <td>${stat.total}</td>
+                <td class="status-on-time">${stat.onTime}</td>
+                <td class="status-late">${stat.late}</td>
+                <td class="status-pending">${stat.pending}</td>
+                <td>${stat.percent}%</td>
+                <td>${stat.level}</td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
     } else {
       console.error('Failed to load filtered stats:', data.message);
-      return [];
+      showToast(`Failed to load filtered stats: ${data.message}`, 'error');
     }
   } catch (error) {
     console.error('Error fetching filtered stats:', error);
-    return [];
+    showToast('An error occurred while fetching filtered stats.', 'error');
+  } finally {
+    hideLoader();
   }
 }
 
-// The document.addEventListener('DOMContentLoaded') calls are replaced by initializeAdminPage
-// which is called by the onload event on the body tag.
-// document.addEventListener('DOMContentLoaded', () => {
-//   loadEmployees();
-//   loadTasks();
-//   populateDropdowns();
-// });
+// Event listeners for filter controls
+document.getElementById('applyFilterBtn').addEventListener('click', () => {
+    const department = document.getElementById('filterDepartment').value;
+    const level = document.getElementById('filterLevel').value;
+    const fromDate = document.getElementById('filterFromDate').value;
+    const toDate = document.getElementById('filterToDate').value;
+
+    const filters = {};
+    if (department) filters.department = department;
+    if (level) filters.level = level;
+    if (fromDate) filters.from = fromDate;
+    if (toDate) filters.to = toDate;
+
+    loadFilteredStats(filters);
+});
+
+document.getElementById('clearFilterBtn').addEventListener('click', () => {
+    document.getElementById('filterDepartment').value = '';
+    document.getElementById('filterLevel').value = '';
+    document.getElementById('filterFromDate').value = '';
+    document.getElementById('filterToDate').value = '';
+    loadFilteredStats({}); // Load all stats after clearing filters
+});

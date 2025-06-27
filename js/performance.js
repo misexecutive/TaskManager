@@ -7,23 +7,6 @@ let userEmail = ''; // This variable will be set from sessionStorage
  * If no email is found, it redirects the user to the login page.
  * Otherwise, it loads the user's tasks and performance data.
  */
-async function initializePerformancePage() {
-  userEmail = sessionStorage.getItem('userEmail');
-  const userName = sessionStorage.getItem('userName');
-
-  if (!userEmail) {
-    // If no user email, redirect to login page
-    window.location.href = 'portal.html';
-    return;
-  }
-
-  // Display user name
-  document.getElementById('userName').textContent = userName || 'User';
-
-  // Load tasks and performance for the authenticated user
-  loadTasks(userEmail);
-  loadPerformance(userEmail);
-}
 
 // The handleCredentialResponse function is removed as authentication and redirection
 // are now handled exclusively by portal.js
@@ -149,6 +132,25 @@ async function markTaskAsDone(taskID, date) {
     alert('An error occurred while marking the task done.'); // Use custom modal
   }
 }
+
+async function initializePerformancePage() {
+  userEmail = sessionStorage.getItem('userEmail');
+  const userName = sessionStorage.getItem('userName');
+
+  if (!userEmail) {
+    // If no user email, redirect to login page
+    window.location.href = 'portal.html';
+    return;
+  }
+
+  // Display user name
+  document.getElementById('userName').textContent = userName || 'User';
+
+  // Load tasks and performance for the authenticated user
+  loadTasks(userEmail);
+  loadPerformance(userEmail);
+}
+
 
 // Initial call to load data when the page loads
 // This is now triggered by the onload event in performance.html body

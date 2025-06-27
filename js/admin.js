@@ -164,8 +164,8 @@ document.getElementById('assignForm').addEventListener('submit', async (e) => {
   const formData = new FormData(e.target);
   const params = new URLSearchParams({
     action: 'assignTask',
-    taskID: formData.get('task'),
-    assignedToEmail: formData.get('assignedTo'), // Changed from 'email' to 'assignedToEmail' for clarity
+    task: formData.get('task'), // Fixed: changed from 'taskID' to 'task'
+    assignedTo: formData.get('assignedTo'), // Fixed: changed from 'assignedToEmail' to 'assignedTo'
     recurrence: formData.get('recurrence'),
     startDate: formData.get('startDate')
   });
@@ -228,24 +228,33 @@ async function populateDropdowns() {
 
 /**
  * Loads global performance statistics.
+ * Fixed to handle the summary array structure returned by backend.
  */
 async function loadGlobalPerformance() {
   try {
-    const res = await fetch(`${API_BASE}?action=getStatsAll`); // Assuming this API exists
+    const res = await fetch(`${API_BASE}?action=getStatsAll`);
     const data = await res.json();
 
-    if (data.status === 'success') {
-      document.getElementById('globalTotal').textContent = data.total || 'N/A';
-      document.getElementById('globalOnTime').textContent = data.onTime || 'N/A';
-      document.getElementById('globalLate').textContent = data.late || 'N/A';
-      document.getElementById('globalPending').textContent = data.pending || 'N/A';
+    if (data.status === 'success' && data.summary) {
+      // Calculate totals from summary array
+      const totals = data.summary.reduce((acc, user) => ({
+        total: acc.total + (user.total || 0),
+        onTime: acc.onTime + (user.onTime || 0),
+        late: acc.late + (user.late || 0),
+        pending: acc.pending + (user.pending || 0)
+      }), { total: 0, onTime: 0, late: 0, pending: 0 });
+
+      document.getElementById('globalTotal').textContent = totals.total;
+      document.getElementById('globalOnTime').textContent = totals.onTime;
+      document.getElementById('globalLate').textContent = totals.late;
+      document.getElementById('globalPending').textContent = totals.pending;
     } else {
       console.error('Failed to load global performance stats:', data.message);
-      // Optionally clear existing values or show an error state
-      document.getElementById('globalTotal').textContent = 'Error';
-      document.getElementById('globalOnTime').textContent = 'Error';
-      document.getElementById('globalLate').textContent = 'Error';
-      document.getElementById('globalPending').textContent = 'Error';
+      // Show zero values instead of error
+      document.getElementById('globalTotal').textContent = '0';
+      document.getElementById('globalOnTime').textContent = '0';
+      document.getElementById('globalLate').textContent = '0';
+      document.getElementById('globalPending').textContent = '0';
     }
   } catch (error) {
     console.error('Error fetching global performance stats:', error);
@@ -253,6 +262,32 @@ async function loadGlobalPerformance() {
     document.getElementById('globalOnTime').textContent = 'Error';
     document.getElementById('globalLate').textContent = 'Error';
     document.getElementById('globalPending').textContent = 'Error';
+  }
+}
+
+/**
+ * Loads filtered performance statistics based on user inputs.
+ * This function can be called when implementing advanced filtering features.
+ */
+async function loadFilteredStats(filters = {}) {
+  try {
+    const params = new URLSearchParams({
+      action: 'getFilteredStats',
+      ...filters
+    });
+
+    const res = await fetch(`${API_BASE}?${params}`);
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      return data.data; // Return the filtered statistics
+    } else {
+      console.error('Failed to load filtered stats:', data.message);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching filtered stats:', error);
+    return [];
   }
 }
 

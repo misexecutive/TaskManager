@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel - Add Employee</title>
-  <link href="css/styles.css" rel="stylesheet" />
+  <title>Admin Panel - Task Management</title>
+  <link href="assets/css/styles.css" rel="stylesheet" />
 </head>
-<body class="p-6 font-sans">
-  <h1 class="text-2xl font-bold mb-4">Admin Portal - Add Employee</h1>
+<body class="p-6 font-sans" onload="initializeAdminPage()">
+  <!-- userName will be populated by admin.js using sessionStorage -->
+  <h1 class="text-2xl font-bold mb-4">Admin Portal - Welcome, <span id="userName"></span></h1>
 
+  <hr class="my-8">
+
+  <h1 class="text-2xl font-bold mb-4">Add Employee</h1>
   <form id="employeeForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
     <input type="text" name="name" placeholder="Name" required class="w-full p-2 mb-2 border rounded" />
     <input type="email" name="email" placeholder="Email" required class="w-full p-2 mb-2 border rounded" />
@@ -29,55 +33,69 @@
       <!-- Filled by JS -->
     </tbody>
   </table>
-<hr class="my-8">
 
-<h1 class="text-2xl font-bold mb-4">Add Task</h1>
+  <hr class="my-8">
 
-<form id="taskForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
-  <input type="text" name="name" placeholder="Task Name" required class="w-full p-2 mb-2 border rounded" />
-  <input type="text" name="description" placeholder="Task Description" required class="w-full p-2 mb-2 border rounded" />
-  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add Task</button>
-</form>
+  <h1 class="text-2xl font-bold mb-4">Add Task</h1>
+  <form id="taskForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
+    <input type="text" name="name" placeholder="Task Name" required class="w-full p-2 mb-2 border rounded" />
+    <input type="text" name="description" placeholder="Task Description" required class="w-full p-2 mb-2 border rounded" />
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add Task</button>
+  </form>
 
-<h2 class="text-xl font-semibold mb-2">Task List</h2>
-<table class="w-full border text-left">
-  <thead class="bg-gray-200">
-    <tr>
-      <th class="p-2 border">Task ID</th>
-      <th class="p-2 border">Name</th>
-      <th class="p-2 border">Description</th>
-    </tr>
-  </thead>
-  <tbody id="taskTableBody">
-    <!-- Filled by JS -->
-  </tbody>
-</table>
+  <h2 class="text-xl font-semibold mb-2">Task List</h2>
+  <table class="w-full border text-left">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="p-2 border">Task ID</th>
+        <th class="p-2 border">Name</th>
+        <th class="p-2 border">Description</th>
+      </tr>
+    </thead>
+    <tbody id="taskTableBody">
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
 
-<hr class="my-8">
+  <hr class="my-8">
 
-<h1 class="text-2xl font-bold mb-4">Assign Task</h1>
+  <h1 class="text-2xl font-bold mb-4">Assign Task</h1>
 
-<form id="assignForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
-  <label class="block mb-2">Select Task</label>
-  <select name="task" id="taskDropdown" required class="w-full p-2 mb-2 border rounded"></select>
+  <form id="assignForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
+    <label class="block mb-2">Select Task</label>
+    <select name="task" id="taskDropdown" required class="w-full p-2 mb-2 border rounded"></select>
 
-  <label class="block mb-2">Assign To (Employee)</label>
-  <select name="assignedTo" id="employeeDropdown" required class="w-full p-2 mb-2 border rounded"></select>
+    <label class="block mb-2">Assign To (Employee)</label>
+    <select name="assignedTo" id="employeeDropdown" required class="w-full p-2 mb-2 border rounded"></select>
 
-  <label class="block mb-2">Recurrence</label>
-  <select name="recurrence" required class="w-full p-2 mb-2 border rounded">
-    <option value="Daily">Daily</option>
-    <option value="Weekly">Weekly</option>
-    <option value="Monthly">Monthly</option>
-  </select>
+    <label class="block mb-2">Recurrence</label>
+    <select name="recurrence" required class="w-full p-2 mb-2 border rounded">
+      <option value="Daily">Daily</option>
+      <option value="Weekly">Weekly</option>
+      <option value="Monthly">Monthly</option>
+      <option value="One Time">One Time</option>
+    </select>
 
-  <label class="block mb-2">Start Date</label>
-  <input type="date" name="startDate" required class="w-full p-2 mb-2 border rounded" />
+    <label class="block mb-2">Start Date</label>
+    <input type="date" name="startDate" required class="w-full p-2 mb-2 border rounded" />
 
-  <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Assign Task</button>
-</form>
+    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Assign Task</button>
+  </form>
+
+  <hr class="my-8">
+
+  <h1 class="text-2xl font-bold mb-4">Global Performance Stats</h1>
+  <div id="globalStatsBox" class="p-4 bg-gray-100 rounded shadow w-full max-w-lg mb-6">
+    <p><strong>Total Tasks (All Time):</strong> <span id="globalTotal"></span></p>
+    <p class="text-green-600"><strong>On Time (All Time):</strong> <span id="globalOnTime"></span></p>
+    <p class="text-red-600"><strong>Late (All Time):</strong> <span id="globalLate"></span></p>
+    <p class="text-yellow-600"><strong>Pending (All Time):</strong> <span id="globalPending"></span></p>
+  </div>
 
 
-  <script src="js/admin.js"></script>
+  <!-- The auto sign-in div is removed as authentication is handled by portal.html -->
+
+  <!-- Link to admin.js -->
+  <script src="admin.js"></script>
 </body>
 </html>

@@ -29,20 +29,22 @@ async function loadTasks(email) {
     const container = document.getElementById('taskList');
     container.innerHTML = ''; // Clear previous tasks
 
+// ... (inside loadTasks function)
+
     result.tasks.forEach(task => {
       const taskCard = document.createElement('div');
-      taskCard.className = 'border p-4 rounded shadow';
+      taskCard.className = 'task-card'; // Changed from 'border p-4 rounded shadow'
 
-      const statusColor =
-        task.Status === 'On Time' ? 'text-green-600' :
-        task.Status === 'Late' ? 'text-red-600' :
-        'text-yellow-600';
+      const statusColorClass =
+        task.Status === 'On Time' ? 'status-on-time' :
+        task.Status === 'Late' ? 'status-late' :
+        'status-pending';
 
       taskCard.innerHTML = `
         <h3 class="text-lg font-semibold mb-1">${task.Task}</h3>
         <p><strong>Planned:</strong> ${task['Planned Date']}</p>
-        <p><strong>Status:</strong> <span class="${statusColor}">${task.Status}</span></p>
-        ${task.Status === 'Pending' ? `<button class="mt-2 bg-blue-600 text-white px-3 py-1 rounded mark-btn"
+        <p><strong>Status:</strong> <span class="${statusColorClass}">${task.Status}</span></p>
+        ${task.Status === 'Pending' ? `<button class="mark-btn"
           data-taskid="${task['Task ID']}"
           data-date="${task['Planned Date']}">Mark Done</button>` : ''}
       `;
@@ -50,6 +52,7 @@ async function loadTasks(email) {
       container.appendChild(taskCard);
     });
 
+// ... (rest of the loadTasks function)
     // Attach event listeners to "Mark Done" buttons
     document.querySelectorAll('.mark-btn').forEach(btn => {
       btn.addEventListener('click', async () => {

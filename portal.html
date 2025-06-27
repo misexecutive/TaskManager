@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>User Task Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     // jwt_decode function is kept as it's essential for decoding the Google credential
@@ -19,8 +20,8 @@
 
   <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-<body class="p-6 font-sans flex items-center justify-center min-h-screen bg-gray-100">
-  <div class="bg-white p-8 rounded-lg shadow-md text-center">
+<body class="flex-center">
+  <div class="auth-card">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Welcome to Task Manager</h1>
     <p class="mb-6 text-gray-600">Please sign in to continue.</p>
 
@@ -40,7 +41,27 @@
     </div>
   </div>
 
+  <!-- Loader Overlay -->
+  <div id="loader-overlay" class="loader-overlay">
+      <div class="spinner"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Custom Modal for Alerts/Confirmations -->
+  <div id="custom-modal-overlay" class="custom-modal-overlay">
+      <div class="custom-modal-content">
+          <h3 id="modal-title"></h3>
+          <p id="modal-message"></p>
+          <div id="modal-buttons" class="custom-modal-buttons">
+              <!-- Buttons will be injected here by JS -->
+          </div>
+      </div>
+  </div>
+
   <!-- Link to portal.js -->
   <script src="js/portal.js"></script>
+  <script src="js/ui-helpers.js"></script> <!-- New helper script for UI elements -->
 </body>
 </html>

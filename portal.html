@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
+    // jwt_decode function is kept as it's essential for decoding the Google credential
     function jwt_decode(token) {
       var parts = token.split('.');
       if (parts.length !== 3) throw new Error('JWT must have 3 parts');
@@ -18,27 +19,28 @@
 
   <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-<body class="p-6 font-sans">
+<body class="p-6 font-sans flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-md text-center">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Welcome to Task Manager</h1>
+    <p class="mb-6 text-gray-600">Please sign in to continue.</p>
 
-  <h1 class="text-2xl font-bold mb-4">Welcome, <span id="userName">User</span></h1>
-  <p class="mb-4">Here are your tasks for today and this week:</p>
-
-  <div id="taskList" class="space-y-4"></div>
-
-  <div id="g_id_onload"
-       data-client_id="360849757137-agopfs0m8rgmcj541ucpg22btep5olt3.apps.googleusercontent.com"
-       data-callback="handleCredentialResponse"
-       data-auto_prompt="false">
+    <!-- Google Sign-In button remains the primary interactive element -->
+    <div id="g_id_onload"
+         data-client_id="360849757137-f823m67mfrv64b8u74b0k50022t10q2u.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
   </div>
-<!-- Google Sign-In Button -->
-<div class="g_id_signin"
-     data-type="standard"
-     data-size="large"
-     data-theme="outline"
-     data-text="sign_in_with"
-     data-shape="pill"
-     data-logo_alignment="left">
-</div>
-  <script src="js/user.js" defer></script>
+
+  <!-- Link to portal.js -->
+  <script src="user.js"></script>
 </body>
 </html>

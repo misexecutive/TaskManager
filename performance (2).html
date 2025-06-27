@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Performance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    function jwt_decode(token) {
+      var parts = token.split('.');
+      if (parts.length !== 3) throw new Error('JWT must have 3 parts');
+      const payload = parts[1];
+      return JSON.parse(decodeURIComponent(atob(payload.replace(/-/g, '+').replace(/_/g, '/')).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+    }
+  </script>
+
+  <link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body class="p-6 font-sans">
+
+  <h1 class="text-2xl font-bold mb-4">Hello, <span id="userName">User</span></h1>
+  <h2 class="text-xl font-semibold mb-2">This Week's Performance</h2>
+
+  <div id="summaryBox" class="p-4 bg-gray-100 rounded shadow w-full max-w-lg mb-6">
+    <p><strong>Total Tasks:</strong> <span id="total"></span></p>
+    <p class="text-green-600"><strong>On Time:</strong> <span id="onTime"></span></p>
+    <p class="text-red-600"><strong>Late:</strong> <span id="late"></span></p>
+    <p class="text-yellow-600"><strong>Pending:</strong> <span id="pending"></span></p>
+    <p><strong>Target %:</strong> <span id="targetPercent"></span>%</p>
+    <p><strong>Achieved %:</strong> <span id="achieved"></span>%</p>
+    <p id="statusMessage" class="mt-2 font-bold"></p>
+  </div>
+
+  <!-- Auto sign-in -->
+  <div id="g_id_onload"
+       data-client_id="360849757137-agopfs0m8rgmcj541ucpg22btep5olt3.apps.googleusercontent.com"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false"></div>
+
+  <!-- Visible button -->
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="sign_in_with"
+       data-shape="pill"
+       data-logo_alignment="left"></div>
+
+  <script src="assets/js/performance.js" defer></script>
+</body>
+</html>

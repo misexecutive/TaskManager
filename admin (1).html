@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Add Employee</title>
+  <link href="assets/css/styles.css" rel="stylesheet" />
+</head>
+<body class="p-6 font-sans">
+  <h1 class="text-2xl font-bold mb-4">Admin Portal - Add Employee</h1>
+
+  <form id="employeeForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
+    <input type="text" name="name" placeholder="Name" required class="w-full p-2 mb-2 border rounded" />
+    <input type="email" name="email" placeholder="Email" required class="w-full p-2 mb-2 border rounded" />
+    <input type="text" name="department" placeholder="Department" required class="w-full p-2 mb-2 border rounded" />
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add Employee</button>
+  </form>
+
+  <h2 class="text-xl font-semibold mb-2">Employee List</h2>
+  <table class="w-full border text-left">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="p-2 border">Name</th>
+        <th class="p-2 border">Email</th>
+        <th class="p-2 border">Department</th>
+      </tr>
+    </thead>
+    <tbody id="employeeTableBody">
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
+<hr class="my-8">
+
+<h1 class="text-2xl font-bold mb-4">Add Task</h1>
+
+<form id="taskForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
+  <input type="text" name="name" placeholder="Task Name" required class="w-full p-2 mb-2 border rounded" />
+  <input type="text" name="description" placeholder="Task Description" required class="w-full p-2 mb-2 border rounded" />
+  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add Task</button>
+</form>
+
+<h2 class="text-xl font-semibold mb-2">Task List</h2>
+<table class="w-full border text-left">
+  <thead class="bg-gray-200">
+    <tr>
+      <th class="p-2 border">Task ID</th>
+      <th class="p-2 border">Name</th>
+      <th class="p-2 border">Description</th>
+    </tr>
+  </thead>
+  <tbody id="taskTableBody">
+    <!-- Filled by JS -->
+  </tbody>
+</table>
+
+<hr class="my-8">
+
+<h1 class="text-2xl font-bold mb-4">Assign Task</h1>
+
+<form id="assignForm" class="mb-6 bg-gray-100 p-4 rounded shadow w-full max-w-md">
+  <label class="block mb-2">Select Task</label>
+  <select name="task" id="taskDropdown" required class="w-full p-2 mb-2 border rounded"></select>
+
+  <label class="block mb-2">Assign To (Employee)</label>
+  <select name="assignedTo" id="employeeDropdown" required class="w-full p-2 mb-2 border rounded"></select>
+
+  <label class="block mb-2">Recurrence</label>
+  <select name="recurrence" required class="w-full p-2 mb-2 border rounded">
+    <option value="Daily">Daily</option>
+    <option value="Weekly">Weekly</option>
+    <option value="Monthly">Monthly</option>
+  </select>
+
+  <label class="block mb-2">Start Date</label>
+  <input type="date" name="startDate" required class="w-full p-2 mb-2 border rounded" />
+
+  <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Assign Task</button>
+</form>
+
+
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

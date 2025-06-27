@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <title>Weekly Performance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- The jwt_decode function is no longer strictly needed here if we rely solely on sessionStorage -->
-  <!-- However, keeping it doesn't hurt and provides a fallback if direct navigation occurs -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     function jwt_decode(token) {
@@ -19,9 +17,7 @@
   </script>
 
   <link href="assets/css/styles.css" rel="stylesheet">
-</head>
 <body class="p-6 font-sans" onload="initializePerformancePage()">
-  <!-- userName will be populated by performance.js using sessionStorage -->
   <h1 class="text-2xl font-bold mb-4">Hello, <span id="userName"></span></h1>
   <h2 class="text-xl font-semibold mb-2">This Week's Performance</h2>
 
@@ -36,14 +32,9 @@
   </div>
 
   <h2 class="text-xl font-semibold mb-2">Your Tasks</h2>
-  <div id="taskList" class="space-y-4">
-    <!-- Tasks will be loaded here by performance.js -->
-  </div>
+  <div id="taskList" class="task-grid">
+    </div>
 
-  <!-- The auto sign-in div is removed as authentication is handled by portal.html -->
-  <!-- If the user directly accesses this page without authentication, they will be redirected by JS -->
-
-  <!-- Link to performance.js -->
   <script src="js/performance.js"></script>
 </body>
 </html>
